@@ -50,11 +50,11 @@ public class WifiNative {
 
     String mInterface = "";
 
-    public native static boolean loadDriver();
+    public native static boolean loadDriver(int type);
 
     public native static boolean isDriverLoaded();
 
-    public native static boolean unloadDriver();
+    public native static boolean unloadDriver(int type);
 
     public native static boolean startSupplicant(boolean p2pSupported);
 
