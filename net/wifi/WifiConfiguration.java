@@ -77,6 +77,10 @@ public class WifiConfiguration implements Parcelable {
     /** {@hide} */
     public static final String hiddenSSIDVarName = "scan_ssid";
     /** {@hide} */
+    public static final String modeVarName = "mode";
+    /** {@hide} */
+    public static final String frequencyVarName = "frequency";
+    /** {@hide} */
     public static final int INVALID_NETWORK_ID = -1;
 
     /** {@hide} */
@@ -327,6 +331,18 @@ public class WifiConfiguration implements Parcelable {
      */
     public boolean hiddenSSID;
 
+   /**
+     * This is an Ad-Hoc (IBSS) network
+     * {@hide}
+     */
+    public boolean isIBSS;
+
+    /**
+     * Frequency of the Ad-Hoc (IBSS) network, if newly created
+     * {@hide}
+     */
+    public int frequency;
+
     /**
      * The set of key management protocols supported by this configuration.
      * See {@link KeyMgmt} for descriptions of the values.
@@ -405,6 +421,8 @@ public class WifiConfiguration implements Parcelable {
         BSSID = null;
         priority = 0;
         hiddenSSID = false;
+        isIBSS = false;
+        frequency = 0;
         disableReason = DISABLED_UNKNOWN_REASON;
         allowedKeyManagement = new BitSet();
         allowedProtocols = new BitSet();
@@ -524,6 +542,27 @@ public class WifiConfiguration implements Parcelable {
     }
     */
 
+    /** {@hide} */
+    public String getPrintableSsid() {
+        if (SSID == null) return "";
+        final int length = SSID.length();
+        if (length > 2 && (SSID.charAt(0) == '"') && SSID.charAt(length - 1) == '"') {
+            return SSID.substring(1, length - 1);
+        }
+
+        /** The ascii-encoded string format is P"<ascii-encoded-string>"
+         * The decoding is implemented in the supplicant for a newly configured
+         * network.
+         */
+        if (length > 3 && (SSID.charAt(0) == 'P') && (SSID.charAt(1) == '"') &&
+                (SSID.charAt(length-1) == '"')) {
+            WifiSsid wifiSsid = WifiSsid.createFromAsciiEncoded(
+                    SSID.substring(2, length - 1));
+            return wifiSsid.toString();
+        }
+        return SSID;
+    }
+
     private static BitSet readBitSet(Parcel src) {
         int cardinality = src.readInt();
 
@@ -579,6 +618,8 @@ public class WifiConfiguration implements Parcelable {
             wepTxKeyIndex = source.wepTxKeyIndex;
             priority = source.priority;
             hiddenSSID = source.hiddenSSID;
+            isIBSS = source.isIBSS;
+            frequency = source.frequency;
             allowedKeyManagement   = (BitSet) source.allowedKeyManagement.clone();
             allowedProtocols       = (BitSet) source.allowedProtocols.clone();
             allowedAuthAlgorithms  = (BitSet) source.allowedAuthAlgorithms.clone();
@@ -607,6 +648,8 @@ public class WifiConfiguration implements Parcelable {
         dest.writeInt(wepTxKeyIndex);
         dest.writeInt(priority);
         dest.writeInt(hiddenSSID ? 1 : 0);
+        dest.writeInt(isIBSS ? 1 : 0);
+        dest.writeInt(frequency);
 
         writeBitSet(dest, allowedKeyManagement);
         writeBitSet(dest, allowedProtocols);
@@ -638,6 +681,8 @@ public class WifiConfiguration implements Parcelable {
                 config.wepTxKeyIndex = in.readInt();
                 config.priority = in.readInt();
                 config.hiddenSSID = in.readInt() != 0;
+                config.isIBSS = in.readInt() != 0;
+                config.frequency = in.readInt();
                 config.allowedKeyManagement   = readBitSet(in);
                 config.allowedProtocols       = readBitSet(in);
                 config.allowedAuthAlgorithms  = readBitSet(in);

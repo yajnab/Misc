@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2008, The Android Open Source Project
+ * Copyright (c) 2012, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,4 @@
 
 package android.net.wifi.p2p;
 
-import android.os.Messenger;
-
-/**
- * Interface that WifiP2pService implements
- *
- * {@hide}
- */
-interface IWifiP2pManager
-{
-    Messenger getMessenger();
-}
-
+parcelable WifiP2pGroupList;
